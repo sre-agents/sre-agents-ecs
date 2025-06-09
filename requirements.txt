@@ -1,0 +1,31 @@
+#
+# Basic requirements
+#
+python-dotenv==1.1.0
+litellm==1.71.1
+google-adk==1.0.0
+argparse
+deprecated
+
+#
+# Knowledgebase related requirements
+#
+chromadb
+opensearch-py==2.8.0
+
+#
+# Test requirements
+#
+pytest
+deepeval
+nest_asyncio
+
+#
+# Logging
+#
+loguru
+
+#
+# Dev
+#
+pre-commit

