@@ -46,6 +46,37 @@ Then, config the environment variables by copying the `.env.example` file to `.e
 - To experience the knowledgebase and long-term memory services, the `opensearch`-related and `embedding`-related variables need to be filled
 - To experience the ECS operation service, the `ECS_MCP_SERVER` variable need to be filled
 
+## Agent Creation
+```
+def create_agent(
+    name: str,
+    description: str,
+    system_prompt: str,
+    mcp_servers: list = [],
+    tools: list = [],
+):
+    agent = Agent(
+        name=name,
+        description=description,
+        system_prompt=system_prompt,
+        mcp_servers=mcp_servers,
+        tools=tools,
+        # model: str = LLM,
+        # api_key: str = API_KEY,
+        # api_base: str = API_BASE_URL,
+        # short_term_memory=None, # session context
+        # long_term_memory=None, #corss session, personal profile
+        # knowledgebase=None, 
+        # user_prompt_template: str = "{prompt}",
+        # sub_agents: list = [],
+        # input_schema=None,
+        # output_schema=None,
+        # enable_sampling: bool = False, #logging message to generate test dataset
+    )
+    return agent
+
+```
+
 ## Running
 
 **Workflow mode:**
@@ -68,7 +99,7 @@ PYTHONPATH=. python sre_example/entrypoint.py --mode llm --prompt "Delete all fi
 
 See [preview](assets/images/run_llm_mode.png) of this mode.
 
-## Tests
+## Evaluation 
 
 In this project, we use [deepeval](https://github.com/confident-ai/deepeval/) to test the performance of the agent. We test the following agents:
 
