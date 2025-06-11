@@ -121,16 +121,8 @@ class OpenSearchVectorDatabase(BaseVectorDatabase):
             timeout=30,
             max_retries=3,
         )
+        self._client.indices.refresh(index=self._collection_name)
         return
-
-    def collection_exist(self) -> bool:
-        try:
-            return self._client.indices.exists(index=self._collection_name)
-        except Exception as e:
-            logger.error(f"BadRequestError: {e}")
-            if hasattr(e, "body") and e.body:
-                logger.error(f"Error details: {e.body}")
-            return False
 
     def _search_by_vector(self, query_vector: list[float], **kwargs: Any) -> list[str]:
         top_k = kwargs.get("top_k", 5)
@@ -153,3 +145,7 @@ class OpenSearchVectorDatabase(BaseVectorDatabase):
     def get_health(self):
         response = self._client.cat.health()
         logger.info(response)
+
+    def is_empty(self):
+        response = self._client.count(index=self._collection_name)
+        return response["count"] == 0

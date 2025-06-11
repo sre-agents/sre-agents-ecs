@@ -1,31 +1,14 @@
 import pytest
 from deepeval import assert_test
 from deepeval.dataset import EvaluationDataset
-from deepeval.key_handler import KEY_FILE_HANDLER, KeyValues
 from deepeval.metrics import GEval
-from deepeval.models import LocalModel
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
-from src.config import API_BASE_URL, API_KEY, LLM
 from sre_example.prompts.sre_agent_prompts import CMD_GENERATOR_SYSTEM_PROMPT
 from tests.data.test_cmd_generator import data
 from tests.prompts.deepeval_prompts import EVAL_MODEL_PROMPT
 from tests.utils.common_utils import create_agent, run_batch_agent
-
-
-def create_eval_model(
-    model_name: str = LLM, api_key: str = API_KEY, api_base: str = API_BASE_URL
-):
-    KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_NAME, model_name)
-    KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_BASE_URL, api_base)
-    if api_key:
-        KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_API_KEY, api_key)
-    if format:
-        KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_FORMAT, "json")
-    KEY_FILE_HANDLER.write_key(KeyValues.USE_LOCAL_MODEL, "YES")
-    KEY_FILE_HANDLER.write_key(KeyValues.USE_AZURE_OPENAI, "NO")
-
-    return LocalModel()
+from tests.utils.deepeval_utils import create_eval_model
 
 
 def build_deepeval_dataset(
@@ -75,11 +58,7 @@ dataset = build_dataset()
     dataset,
 )
 def test_cmd_generator(test_case: LLMTestCase):
-    eval_model = create_eval_model(
-        model_name=LLM,
-        api_key=API_KEY,
-        api_base=API_BASE_URL,
-    )
+    eval_model = create_eval_model()
     correctness_metric = GEval(
         name="Correctness",
         criteria=EVAL_MODEL_PROMPT,

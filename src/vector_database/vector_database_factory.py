@@ -4,10 +4,10 @@ from typing import Any
 
 import requests
 
-from src.config import API_KEY, EMBEDDING_API_BASE_URL, EMBEDDING_LM
+from src.config import EMBEDDING_API_KEY, EMBEDDING_API_BASE_URL, EMBEDDING_LM
 
 EMBEDDING_LM = os.getenv("EMBEDDING_LM", EMBEDDING_LM)
-EMBEDDING_API_BASE_URL = os.getenv("EMBEDDING_API_BASE_URL", EMBEDDING_API_BASE_URL)
+
 assert EMBEDDING_LM != "", "EMBEDDING_LM is not set, please check your .env file"
 assert EMBEDDING_API_BASE_URL != "", (
     "EMBEDDING_API_BASE_URL is not set, please check your .env file"
@@ -16,7 +16,14 @@ assert EMBEDDING_API_BASE_URL != "", (
 
 class VectorType:
     OPENSEARCH = "opensearch"
-    REDIS = "redis"
+    LOCAL = "local"
+
+    @classmethod
+    def get_attr(cls) -> set[str]:
+        return {
+            value for attr, value in cls.__dict__.items()
+            if not attr.startswith('__') and attr != 'get_attr'
+        }
 
 
 class Embeddings:
@@ -24,7 +31,7 @@ class Embeddings:
         self,
         model: str = EMBEDDING_LM,
         api_base: str = EMBEDDING_API_BASE_URL,
-        api_key: str = API_KEY,
+        api_key: str = EMBEDDING_API_KEY,
     ):
         self.model = model  # data['model']
         self.url = api_base
@@ -47,8 +54,6 @@ class Embeddings:
 
 
 class BaseVectorDatabase(ABC):
-    name: str
-
     def __init__(self, collection_name: str):
         self._collection_name = collection_name.lower()
 
@@ -57,11 +62,11 @@ class BaseVectorDatabase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def collection_exist(self) -> bool:
+    def search(self, query: str, **kwargs: Any) -> list[str]:
         raise NotImplementedError
 
     @abstractmethod
-    def search(self, query: str, **kwargs: Any) -> list[str]:
+    def is_empty(self):
         raise NotImplementedError
 
 
@@ -71,5 +76,8 @@ class VectorDatabaseFactory:
         if vector_type == VectorType.OPENSEARCH:
             from .opensearch_vector_database import OpenSearchVectorDatabase
             return OpenSearchVectorDatabase(collection_name)
+        if vector_type == VectorType.LOCAL:
+            from .local_database import LocalDataBase
+            return LocalDataBase(collection_name)
         else:
             raise ValueError(f"Unsupported vector type: {vector_type}")

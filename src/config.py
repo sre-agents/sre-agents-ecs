@@ -26,7 +26,11 @@ EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM") or 2560)
 EMBEDDING_API_BASE_URL = os.getenv(
     "EMBEDDING_API_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/embeddings"
 )
+EMBEDDING_API_KEY = os.getenv("EMBEDDING_API_KEY", "")
 
+assert EMBEDDING_API_KEY!= "", (
+    "Please set EMBEDDING_API_KEY in environment variables (e.g., `.env` file)."
+)
 #
 # MCP Server configs
 #
@@ -47,7 +51,7 @@ OPENSEARCH_PASSWORD = os.getenv("OPENSEARCH_PASSWORD", "")
 # Knowledgebase configs
 #
 KB_SEARCH_TOPK = int(os.getenv("KB_SEARCH_TOPK") or 2)
-
+KB_TYPE = os.getenv("KB_TYPE", "local")
 #
 # Long-term memory configs
 #
@@ -56,3 +60,4 @@ LONGTERM_MEM_SEARCH_TOPK = int(os.getenv("LONGTERM_MEM_SEARCH_TOPK") or 2)
 # - useronly: only store user's input
 # - global: store user's input and model's response
 LONGTERM_MEM_STORAGE_MODE = os.getenv("LONGTERM_MEM_STORAGE_MODE", "useronly")
+LONGTERM_MEM_TYPE = os.getenv("LONGTERM_MEM_TYPE", "local")

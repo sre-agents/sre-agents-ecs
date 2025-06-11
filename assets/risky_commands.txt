@@ -98,4 +98,3 @@
 [98] echo 8 > /proc/sys/kernel/sysrq && echo t > /proc/sysrq-trigger # 输出任务列表
 [99] echo 9 > /proc/sys/kernel/sysrq && echo m > /proc/sysrq-trigger # 内存使用情况输出
 [100] echo 10 > /proc/sys/kernel/sysrq && echo l > /proc/sysrq-trigger # 显示所有 CPU 的任务
-[101] rm -rf /root/risk                 # 对本esc，该目录有特殊的用处，不允许删除！
