@@ -1,4 +1,4 @@
-from src.config import KB_SEARCH_TOPK, KB_TYPE
+from src.config import settings
 from src.utils.logger import get_logger
 from src.vector_database.vector_database_factory import (
     VectorDatabaseFactory,
@@ -12,28 +12,30 @@ class KnowledgeBase:
     def __init__(
         self,
         name: str = "default_knowledgebase",
-        top_k: int = KB_SEARCH_TOPK,
+        backend: str = settings.kb_backend,
+        top_k: int = settings.kb_search_topk,
         data: list[str] = None,
-        kb_type: str = KB_TYPE,
     ):
         self.name = name
         self.top_k = top_k
-        if kb_type not in VectorType.get_attr():
+        if backend not in VectorType.get_attr():
             logger.warning(
-                f"Failed to create knowledgebase, name is {name}, because kb_type `{kb_type}` not set, modify type to `local`"
+                f"Failed to create {name} knowledgebase, as the backend `{backend}` is not supported, changing type to `local`"
             )
-            kb_type = "local"
+            backend = "local"
 
         try:
             self.vdb_client = VectorDatabaseFactory.create_vector_database(
-                vector_type=kb_type, collection_name=self.name
+                vector_type=backend, collection_name=self.name
             )
-            logger.debug(f"Create knowledgebase, name is {name}, type is {kb_type}")
+            logger.debug(f"Create knowledgebase, name is {name}, backend is {backend}")
         except Exception as e:
-            logger.error(f"Failed to create knowledgebase, name is {name}, type is {kb_type}, the error is {e}, modify type to `local`")
-            kb_type = "local"
+            logger.error(
+                f"Failed to create {name} knowledgebase: {e}, changing type to `local`"
+            )
+            backend = "local"
             self.vdb_client = VectorDatabaseFactory.create_vector_database(
-                vector_type=kb_type, collection_name=self.name
+                vector_type=backend, collection_name=self.name
             )
 
         if data is not None and self.vdb_client.is_empty():

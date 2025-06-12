@@ -4,32 +4,21 @@ from typing import Any, Literal, Optional
 from opensearchpy import OpenSearch, Urllib3HttpConnection, helpers
 from pydantic import BaseModel
 
-from src.config import (
-    EMBEDDING_DIM,
-    OPENSEARCH_HOST,
-    OPENSEARCH_PASSWORD,
-    OPENSEARCH_PORT,
-    OPENSEARCH_USERNAME,
-)
+from src.config import settings
 from src.utils.logger import get_logger
 from src.vector_database.vector_database_factory import BaseVectorDatabase, Embeddings
 
 logger = get_logger(__name__)
 
-assert OPENSEARCH_HOST != "", "OPENSEARCH_HOST is not set"
-assert OPENSEARCH_PORT != "", "OPENSEARCH_PORT is not set"
-assert OPENSEARCH_USERNAME != "", "OPENSEARCH_USERNAME is not set"
-assert OPENSEARCH_PASSWORD != "", "OPENSEARCH_PASSWORD is not set"
-
 
 class OpenSearchConfig(BaseModel):
-    host: str = OPENSEARCH_HOST
-    port: int = int(OPENSEARCH_PORT)
-    secure: bool = True  # use_ssl
+    host: str
+    port: int
+    username: Optional[str]
+    password: Optional[str]
+    secure: bool = True  # ssl by default
     verify_certs: bool = False
     auth_method: Literal["basic", "aws_managed_iam"] = "basic"
-    user: Optional[str] = OPENSEARCH_USERNAME
-    password: Optional[str] = OPENSEARCH_PASSWORD
 
     def to_opensearch_params(self) -> dict[str, Any]:
         params = {
@@ -43,7 +32,7 @@ class OpenSearchConfig(BaseModel):
         if self.verify_certs and ca_cert_path:
             params["ca_certs"] = ca_cert_path
 
-        params["http_auth"] = (self.user, self.password)
+        params["http_auth"] = (self.username, self.password)
 
         return params
 
@@ -52,7 +41,23 @@ class OpenSearchVectorDatabase(BaseVectorDatabase):
     def __init__(self, collection_name: str):
         super().__init__(collection_name)
         self.embedding_client = Embeddings()
-        self._client_config = OpenSearchConfig()
+
+        # Currently, we use environment variables to configure the OpenSearch client, so we should check the envs first.
+        opensearch_host = settings.opensearch_host
+        opensearch_port = settings.opensearch_port
+        opensearch_username = settings.opensearch_username
+        opensearch_password = settings.opensearch_password
+        assert opensearch_host != "", "OPENSEARCH_HOST cannot be empty."
+        assert opensearch_port != "", "OPENSEARCH_PORT cannot be empty."
+        assert opensearch_username != "", "OPENSEARCH_USERNAME cannot be empty."
+        assert opensearch_password != "", "OPENSEARCH_PASSWORD cannot be empty."
+        self._client_config = OpenSearchConfig(
+            host=opensearch_host,
+            port=opensearch_port,
+            username=opensearch_username,
+            password=opensearch_password,
+        )
+
         self._client = self._init_client(self._client_config)
         self.create_collection()
 
@@ -85,7 +90,7 @@ class OpenSearchVectorDatabase(BaseVectorDatabase):
 
     def create_collection(
         self,
-        embedding_dim: int = int(EMBEDDING_DIM),
+        embedding_dim: int = settings.embedding_dim,
     ):
         if not self._client.indices.exists(index=self._collection_name):
             self._client.indices.create(

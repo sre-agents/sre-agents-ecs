@@ -41,13 +41,14 @@ conda activate sreagent
 pip install -r requirements.txt
 ```
 
-Then, config the environment variables by copying the `.env.example` file to `.env`, and fill the values such as `API_KEY. Furthermore:
+Then, config the environment variables by copying the `.env.example` file to `.env`, and fill the values such as `MODEL_API_KEY`. Furthermore:
 
 - To experience the knowledgebase and long-term memory services, the `opensearch`-related and `embedding`-related variables need to be filled
 - To experience the ECS operation service, the `ECS_MCP_SERVER` variable need to be filled
 
 ## Agent Creation
-```
+
+```python
 def create_agent(
     name: str,
     description: str,
@@ -74,7 +75,6 @@ def create_agent(
         # enable_sampling: bool = False, #logging message to generate test dataset
     )
     return agent
-
 ```
 
 ## Running

@@ -8,7 +8,7 @@ from google.genai import types
 from pydantic import BaseModel
 
 import src.tools.call_agent as call_agent_module
-from src.config import API_BASE_URL, API_KEY, LLM, MODEL_PROVIDER
+from src.config import settings
 from src.memory.short_term_memory import ShortTermMemory
 from src.prompts.agent_calling_prompt import (
     AGENT_CALLING_PROMPT,
@@ -44,9 +44,9 @@ class Agent:
         self,
         name: str,
         description: str,
-        model: str = LLM,
-        api_key: str = API_KEY,
-        api_base: str = API_BASE_URL,
+        model: str = settings.model,
+        api_key: str = settings.model_api_key,
+        api_base: str = settings.model_api_base_url,
         system_prompt: str = "",
         user_prompt_template: str = "{prompt}",
         tools: list = [],
@@ -64,7 +64,7 @@ class Agent:
         self.name = name
         self.description = description
         self.model = create_reasoning_model(
-            model_provider=MODEL_PROVIDER,
+            model_provider=settings.model_provider,
             model=model,
             api_key=api_key,
             api_base=api_base,

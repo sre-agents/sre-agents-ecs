@@ -1,6 +1,8 @@
 from typing import Literal
+
 from google.adk.sessions import Session
-from src.config import LONGTERM_MEM_SEARCH_TOPK, LONGTERM_MEM_STORAGE_MODE, LONGTERM_MEM_TYPE
+
+from src.config import settings
 from src.utils.logger import get_logger
 from src.vector_database.vector_database_factory import (
     VectorDatabaseFactory,
@@ -14,28 +16,30 @@ class LongTermMemory:
     def __init__(
         self,
         name: str,
-        top_k: int = LONGTERM_MEM_SEARCH_TOPK,
-        longterm_mem_type: str = LONGTERM_MEM_TYPE,
+        backend: str = settings.longterm_mem_backend,
+        top_k: int = settings.longterm_mem_search_topk,
     ):
-        if longterm_mem_type not in VectorType.get_attr():
+        if backend not in VectorType.get_attr():
             logger.warning(
-                f"Failed to create long term memory, name is {name}, because longterm_mem_type `{longterm_mem_type}` not set, modify type to `local`"
+                f"Failed to create long term memory (name: {name}, backend: {backend}), change backend to `local`"
             )
-            longterm_mem_type = "local"
+            backend = "local"
 
         self.top_k = top_k
         self.collection_name = name
         try:
             self.vector_client = VectorDatabaseFactory.create_vector_database(
-                vector_type=longterm_mem_type,
+                vector_type=backend,
                 collection_name=self.collection_name,
             )
-            logger.debug(f"Create long-term memory: {name}, type is {longterm_mem_type}")
+            logger.debug(f"Create long-term memory: {name}, backend is {backend}")
         except Exception as e:
-            logger.error(f"Failed to create long-term memory: {name}, type is {longterm_mem_type}, the error is {e}, modify type to `local`")
-            longterm_mem_type = "local"
+            logger.error(
+                f"Failed to create long-term memory: {name}, backend is {backend}, the error is {e}, modify backend to `local`"
+            )
+            longterm_mem_backend = "local"
             self.vector_client = VectorDatabaseFactory.create_vector_database(
-                vector_type=longterm_mem_type,
+                vector_type=longterm_mem_backend,
                 collection_name=self.collection_name,
             )
 
@@ -45,7 +49,7 @@ class LongTermMemory:
     def add_session_to_memory(
         self,
         session: Session,
-        mode: Literal["useronly", "global"] = LONGTERM_MEM_STORAGE_MODE,
+        mode: Literal["useronly", "global"] = settings.longterm_mem_storage_mode,
     ):
         event_text = ""
         for event in session.events:
