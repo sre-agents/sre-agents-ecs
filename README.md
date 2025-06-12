@@ -41,7 +41,7 @@ conda activate sreagent
 pip install -r requirements.txt
 ```
 
-Then, config the environment variables by copying the `.env.example` file to `.env`, and fill the values such as `API_KEY` and `ECS_MCP_SERVER`. Furthermore:
+Then, config the environment variables by copying the `.env.example` file to `.env`, and fill the values such as `API_KEY. Furthermore:
 
 - To experience the knowledgebase and long-term memory services, the `opensearch`-related and `embedding`-related variables need to be filled
 - To experience the ECS operation service, the `ECS_MCP_SERVER` variable need to be filled
@@ -99,7 +99,9 @@ PYTHONPATH=. python sre_example/entrypoint.py --mode llm --prompt "Delete all fi
 
 See [preview](assets/images/run_llm_mode.png) of this mode.
 
-## Evaluation 
+## Evaluation
+
+> Before starting evaluation, you should set the evaluation-related fields in your `.env` file or environment variables. 
 
 In this project, we use [deepeval](https://github.com/confident-ai/deepeval/) to test the performance of the agent. We test the following agents:
 
