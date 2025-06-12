@@ -1,0 +1,68 @@
+from prometheus_client import CollectorRegistry, Gauge
+from src.evaluation.prometheus_utils import post_pushgateway
+from src.evaluation.schema import EvaluationMetadata, TestcaseData
+
+registry = CollectorRegistry()
+
+
+test_cases_total_metric = Gauge(
+    "test_cases_total",
+    "Total number of test cases in this evaluation",
+    registry=registry,
+)
+
+test_cases_success_metric = Gauge(
+    "test_cases_success", "Success number of test cases", registry=registry
+)
+test_cases_failure_metric = Gauge(
+    "test_cases_failure", "Failuer number of test cases", registry=registry
+)
+
+test_cases_pass_metric = Gauge(
+    "test_cases_pass", "Passed number of test cases", registry=registry
+)
+test_cases_unpass_metric = Gauge(
+    "test_cases_unpass", "Unpassed number of test cases", registry=registry
+)
+
+test_cases_data_metric = Gauge(
+    "test_cases_data",
+    "Specific data of test cases",
+    registry=registry,
+    labelnames=["data"],
+)
+
+eval_data_metric = Gauge(
+    "eval_data",
+    "Specific data of evaluation",
+    registry=registry,
+    labelnames=["data"],
+)
+
+
+def show_eval_results(
+    test_name: str,
+    test_cases_total: str,
+    test_cases_success: str,
+    test_cases_failure: str,
+    test_cases_pass: str,
+    test_cases_unpass: str,
+    test_data: TestcaseData,
+    eval_data: EvaluationMetadata,
+):
+    test_cases_total_metric.set(test_cases_total)
+    test_cases_success_metric.set(test_cases_success)
+    test_cases_failure_metric.set(test_cases_failure)
+    test_cases_pass_metric.set(test_cases_pass)
+    test_cases_unpass_metric.set(test_cases_unpass)
+    test_cases_data_metric.labels(data=str(test_data.__dict__)).set(1)
+    eval_data_metric.labels(data=str(eval_data.__dict__)).set(1)
+
+    post_pushgateway(
+        pushgateway_url=PUSHGATEWAY_URL,
+        username=USERNAME,
+        password=PASSWORD,
+        job_name=JOB_NAME,
+        registry=registry,
+        grouping_key={"test_name": test_name},
+    )
