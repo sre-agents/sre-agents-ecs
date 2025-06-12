@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from src.config import ECS_MCP_SERVER
+from src.config import settings
 from src.knowledgebase.knowledgebase import KnowledgeBase
 from src.tools.ask_for_approve import ask_for_approve
 from src.utils.misc import read_file
@@ -81,7 +81,7 @@ config = {
     "description": "Command executor",
     "system_prompt": CMD_EXECUTOR_SYSTEM_PROMPT,
     "user_prompt_template": CMD_EXECUTOR_USER_PROMPT_TEMPLATE,
-    "mcp_servers": [ECS_MCP_SERVER],
+    "mcp_servers": [settings.ecs_mcp_server],
     "tools": [ask_for_approve],
     # "long_term_memory": long_term_memory,
     "input_schema": CommandExecutorInputSchema,

@@ -1,19 +1,26 @@
-import os
+from pydantic_settings import BaseSettings
 
-from dotenv import load_dotenv
+from src.utils.logger import get_logger
 
-load_dotenv()
+logger = get_logger(__name__)
 
-#
-# LiteLLM configs
-#
-MODEL_PROVIDER = os.getenv("MODEL_PROVIDER", "openai")
-JUDGE_LLM = os.getenv(
-    "JUDGE_LLM", "doubao-1-5-pro-256k-250115"
-)  # We used this model because of its long-context and strong-fc capabilities
-JUDGE_LLM_API_BASE_URL = os.getenv("JUDGE_LLM_API_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3/")
-JUDGE_LLM_API_KEY = os.getenv("JUDGE_LLM_API_KEY", "")
 
-assert JUDGE_LLM_API_KEY != "", (
-    "Please set model JUDGE_LLM_API_KEY in environment variables (e.g., `.env` file)."
-)
+class Settings(BaseSettings):
+    judge_model: str = "doubao-1-5-pro-256k-250115"
+    judge_model_api_base_url: str = "https://ark.cn-beijing.volces.com/api/v3/"
+    judge_model_api_key: str = ""
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "allow"
+
+try:
+    settings = Settings()
+    logger.info(f"Settings loaded: {settings.model_dump()}")
+
+    if settings.judge_model_api_key == "":
+        raise ValueError("JUDGE_MODEL_API_KEY is a null string.")
+except ValueError as e:
+    print(e)
+    print("Please set your JUDGE_MODEL_API_KEY in the .env file.")

@@ -1,17 +1,12 @@
 from deepeval.key_handler import KEY_FILE_HANDLER, KeyValues
 from deepeval.models import LocalModel
 
-from tests.config import (
-    JUDGE_LLM_API_BASE_URL,
-    JUDGE_LLM_API_KEY,
-    JUDGE_LLM
-)
-
+from tests.config import settings
 
 def create_eval_model(
-        model_name: str = JUDGE_LLM,
-        api_key: str = JUDGE_LLM_API_KEY,
-        api_base: str = JUDGE_LLM_API_BASE_URL,
+        model_name: str = settings.judge_model,
+        api_key: str = settings.judge_model_api_key,
+        api_base: str = settings.judge_model_api_base_url,
 ):
     KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_NAME, model_name)
     KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_BASE_URL, api_base)
