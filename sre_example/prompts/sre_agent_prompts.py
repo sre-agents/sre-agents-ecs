@@ -18,7 +18,7 @@ Here are some key rules during the operation process:
 
 <input_format>
 A description like:
-- the user's requirments, e.g., `help me to check the CPU status`
+- the user's requirements, e.g., `help me to check the CPU status`
 - SRE system warning, e.g., `CPU Usage is over 90%`
 </input_format>
 

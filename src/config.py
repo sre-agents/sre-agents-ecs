@@ -11,9 +11,7 @@ class Settings(BaseSettings):
     model_api_base_url: str = "https://ark.cn-beijing.volces.com/api/v3/"
     model_api_key: str = ""
 
-    judge_model: str = "doubao-1-5-pro-256k-250115"
-    judge_model_api_base_url: str = "https://ark.cn-beijing.volces.com/api/v3/"
-    judge_model_api_key: str = ""
+    ecs_mcp_server: str = ""
 
     embedding_model: str = "doubao-embedding-text-240715"
     embedding_dim: int = 2560

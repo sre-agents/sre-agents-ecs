@@ -3,12 +3,9 @@ import json
 import pytest
 from deepeval import assert_test
 from deepeval.dataset import EvaluationDataset
-from deepeval.key_handler import KEY_FILE_HANDLER, KeyValues
 from deepeval.metrics import ToolCorrectnessMetric
-from deepeval.models import LocalModel
 from deepeval.test_case import LLMTestCase, ToolCall
 
-from src.config import API_BASE_URL, API_KEY, LLM
 from src.tools.ask_for_approve import ask_for_approve
 from sre_example.prompts.sre_agent_prompts import CMD_EXECUTOR_SYSTEM_PROMPT
 from tests.data.test_cmd_executor import data
@@ -32,21 +29,6 @@ def mock_ecs_server_tool(instance: str, region: str, command_content: str):
               }
     """
     return {"command": command_content, "result": f"{command_content} execute success."}
-
-
-def create_eval_model(
-    model_name: str = LLM, api_key: str = API_KEY, api_base: str = API_BASE_URL
-):
-    KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_NAME, model_name)
-    KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_BASE_URL, api_base)
-    if api_key:
-        KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_API_KEY, api_key)
-    if format:
-        KEY_FILE_HANDLER.write_key(KeyValues.LOCAL_MODEL_FORMAT, "json")
-    KEY_FILE_HANDLER.write_key(KeyValues.USE_LOCAL_MODEL, "YES")
-    KEY_FILE_HANDLER.write_key(KeyValues.USE_AZURE_OPENAI, "NO")
-
-    return LocalModel()
 
 
 def build_deepeval_dataset(
