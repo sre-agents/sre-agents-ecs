@@ -9,6 +9,7 @@ class TestcaseData:
     expected_output: str
     score: str
     reason: str
+    status: str  # `PASSED` or `FAILURE`
 
 
 @dataclass
