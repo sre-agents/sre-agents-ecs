@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     judge_model_api_base_url: str = "https://ark.cn-beijing.volces.com/api/v3/"
     judge_model_api_key: str = ""
 
+    prometheus_pushgateway_url: str = ""
+    prometheus_pushgateway_username: str = ""
+    prometheus_pushgateway_password: str = ""
+
     ecs_mcp_server: str = ""
 
     embedding_model: str = "doubao-embedding-text-240715"

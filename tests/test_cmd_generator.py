@@ -1,17 +1,19 @@
 import asyncio
-import nest_asyncio
 from typing import Callable
-from deepeval.metrics import GEval, BaseMetric
+
+import nest_asyncio
+from deepeval.metrics import BaseMetric, GEval
 from deepeval.test_case import LLMTestCaseParams
+from src.evaluation.evaluator import Evaluator
 from src.memory.short_term_memory import ShortTermMemory
 from sre_example.prompts.sre_agent_prompts import CMD_GENERATOR_SYSTEM_PROMPT
 from tests.data.test_cmd_generator import data
 from tests.prompts.deepeval_prompts import EVAL_MODEL_PROMPT
 from tests.utils.common_utils import create_agent
 from tests.utils.deepeval_utils import create_eval_model
-from src.evaluation.evaluator import Evaluator
 
 nest_asyncio.apply()
+
 
 async def build_callable_agent() -> Callable:
     short_term_memory = await ShortTermMemory.create()
@@ -39,34 +41,23 @@ def build_metrics() -> list[BaseMetric]:
     ]
     return metrics
 
+
 async def main():
     # prepare data
-    inputs = [
-        data_uint["prompt"]
-        for data_uint in data
-    ]
-    expected_output = [
-        str(data_uint["expected_output"])
-        for data_uint in data
-    ]
+    inputs = [data_uint["prompt"] for data_uint in data]
+    expected_output = [str(data_uint["expected_output"]) for data_uint in data]
+
     # agent.run
-    inference_funcs = [
-        await build_callable_agent() for _ in range(len(inputs))
-    ]
+    inference_funcs = [await build_callable_agent() for _ in range(len(inputs))]
 
     # evaluator
-    cmd_exe_evaluator = Evaluator(
-        tested_model="",
-        metrics=build_metrics(),
-        upload=True
-    )
+    cmd_exe_evaluator = Evaluator(metrics=build_metrics(), upload=True)
 
-    result = await cmd_exe_evaluator.evaluate(
-        inputs=inputs,       # prompts
+    await cmd_exe_evaluator.evaluate(
+        inputs=inputs,  # prompts
         expected_outputs=expected_output,
-        inference_funcs=inference_funcs
+        inference_funcs=inference_funcs,
     )
-    print(result)
 
 
 if __name__ == "__main__":

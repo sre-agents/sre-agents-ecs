@@ -110,7 +110,7 @@ In this project, we use [deepeval](https://github.com/confident-ai/deepeval/) to
 We test the quality of the actual outputs of this agent by LLM-as-a-judge. Start test by:
 
 ```shell
-PYTHONPATH=. deepeval test run tests/test_cmd_generator.py
+PYTHONPATH=. python tests/test_cmd_generator.py
 ```
 
 **Risk checker：**

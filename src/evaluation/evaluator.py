@@ -1,5 +1,5 @@
 import asyncio
-import uuid
+import time
 from typing import Callable
 
 from deepeval import evaluate
@@ -9,20 +9,44 @@ from deepeval.metrics import BaseMetric
 from deepeval.models import LocalModel
 from deepeval.test_case import LLMTestCase
 from src.config import settings
+from src.evaluation.schema import EvaluationMetadata, TestcaseData
 from src.evaluation.show import show_eval_results
-from src.evaluation.schema import TestcaseData, EvaluationMetadata
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Evaluator:
     def __init__(
-        self, tested_model: str = "", metrics: list[BaseMetric] = None, upload: bool = False
+        self,
+        test_name: str = f"test_{time.strftime('%Y%m%d%H%M%S')}",
+        tested_model: str = settings.model,
+        metrics: list[BaseMetric] = None,
+        upload: bool = False,
     ):
+        self.test_name = test_name
         self.tested_model = tested_model
         self.metrics = metrics
         self.judge_model = self._create_judge_model()
+        self.judge_model_name = self.judge_model.model_name
 
         # whether upload to Prometheus -> Grafana
         self.upload = upload
+        if self.upload:
+            self.prometheus_pushgateway_url = settings.prometheus_pushgateway_url
+            self.prometheus_pushgateway_username = (
+                settings.prometheus_pushgateway_username
+            )
+            self.prometheus_pushgateway_password = (
+                settings.prometheus_pushgateway_password
+            )
+            if (
+                self.prometheus_pushgateway_url == ""
+                or self.prometheus_pushgateway_username == ""
+                or self.prometheus_pushgateway_password == ""
+            ):
+                logger.warning("Prometheus envs cannot be empty string. Skip upload!")
+                self.upload = False
 
     def _create_judge_model(
         self,
@@ -56,10 +80,12 @@ class Evaluator:
         return actual_outputs
 
     def _build_testcases(
-            self, inputs, actual_outputs, expected_outputs, **kwargs
-    ) ->list[LLMTestCase]:
+        self, inputs, actual_outputs, expected_outputs, **kwargs
+    ) -> list[LLMTestCase]:
         test_cases = []
-        for input, actual_output, expected_output in zip(inputs, actual_outputs,expected_outputs):
+        for input, actual_output, expected_output in zip(
+            inputs, actual_outputs, expected_outputs
+        ):
             test_case = LLMTestCase(
                 input=input,
                 actual_output=actual_output,
@@ -70,7 +96,10 @@ class Evaluator:
         return test_cases
 
     async def evaluate(
-        self, inputs: list[str], expected_outputs: list[str], inference_funcs: Callable | list[Callable]
+        self,
+        inputs: list[str],
+        expected_outputs: list[str],
+        inference_funcs: Callable | list[Callable],
     ):
         actual_outputs = await self._inference(inputs, inference_funcs)
         test_cases = self._build_testcases(
@@ -81,8 +110,16 @@ class Evaluator:
         results = evaluate(test_cases=test_cases, metrics=self.metrics)
 
         if self.upload:
-            eval_results =self._parse_result(inputs, results)
-            show_eval_results(**eval_results)
+            eval_results = self._parse_result(inputs, results)
+            show_eval_results(
+                **eval_results,
+                url=self.prometheus_pushgateway_url,
+                username=self.prometheus_pushgateway_username,
+                password=self.prometheus_pushgateway_password,
+            )
+            logger.info(
+                f"Upload to Prometheus Pushgateway successfully! Test name: {self.test_name}"
+            )
             return results
         else:
             return results
@@ -90,24 +127,24 @@ class Evaluator:
     def _parse_result(self, inputs: list[str], results: EvaluationResult):
         test_results = results.test_results
         # Specific information
-        test_name = str(uuid.uuid4())
+        test_name = self.test_name
         test_cases_total = len(test_results)
         test_cases_failure = 0
         test_cases_pass = 0
         test_data_list = []
         eval_data = EvaluationMetadata(
-            tested_model=str(settings.model),
-            judge_model=str(settings.judge_model),
+            tested_model=self.tested_model,
+            judge_model=self.judge_model_name,
         )
         case_threshold = 0.5
         diff_threshold = 0.2
 
-        for i, (input_str, test_result)in enumerate(zip(inputs, test_results)):
-            pass_flag = 'PASSED'
+        for i, (input_str, test_result) in enumerate(zip(inputs, test_results)):
+            pass_flag = "PASSED"
             if test_result.success:
                 test_cases_pass += 1
             else:
-                pass_flag = 'FAILURE'
+                pass_flag = "FAILURE"
                 test_cases_failure += 1
 
             test_data_list.append(
@@ -122,8 +159,6 @@ class Evaluator:
                     status=pass_flag,
                 )
             )
-
-
 
         return {
             "test_name": test_name,
