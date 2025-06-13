@@ -65,19 +65,28 @@ class Evaluator:
 
     async def _inference(self, inputs, inference_funcs):
         tasks = []
+
+        async def _timed_task(func: Callable, input: str):
+            tik = time.time()
+            result = await func(input)
+            tok = time.time()
+            latency = (tok - tik) * 1000  # milliseconds
+            return result, latency
+
         for idx, input in enumerate(inputs):
             if isinstance(inference_funcs, list):
-                task = asyncio.create_task(inference_funcs[idx](input))
+                task = asyncio.create_task(_timed_task(inference_funcs[idx], input))
                 tasks.append(task)
             elif isinstance(inference_funcs, Callable):
-                task = asyncio.create_task(inference_funcs(input))
+                task = asyncio.create_task(_timed_task(inference_funcs, input))
                 tasks.append(task)
             else:
                 raise TypeError(
                     "inference_funcs must be a list of Callable or a Callable."
                 )
-        actual_outputs = await asyncio.gather(*tasks)
-        return actual_outputs
+        # outputs: [(actual_output, latency), ...]
+        outputs = await asyncio.gather(*tasks)
+        return outputs
 
     def _build_testcases(
         self, inputs, actual_outputs, expected_outputs, **kwargs
@@ -101,7 +110,13 @@ class Evaluator:
         expected_outputs: list[str],
         inference_funcs: Callable | list[Callable],
     ):
-        actual_outputs = await self._inference(inputs, inference_funcs)
+        outputs = await self._inference(inputs, inference_funcs)
+        actual_outputs = []
+        latencys = []
+        for output in outputs:
+            actual_outputs.append(output[0])
+            latencys.append(output[1])
+
         test_cases = self._build_testcases(
             inputs=inputs,
             actual_outputs=actual_outputs,
@@ -110,7 +125,7 @@ class Evaluator:
         results = evaluate(test_cases=test_cases, metrics=self.metrics)
 
         if self.upload:
-            eval_results = self._parse_result(inputs, results)
+            eval_results = self._parse_result(inputs, results, latencys)
             show_eval_results(
                 **eval_results,
                 url=self.prometheus_pushgateway_url,
@@ -120,11 +135,11 @@ class Evaluator:
             logger.info(
                 f"Upload to Prometheus Pushgateway successfully! Test name: {self.test_name}"
             )
-            return results
-        else:
-            return results
+        return results
 
-    def _parse_result(self, inputs: list[str], results: EvaluationResult):
+    def _parse_result(
+        self, inputs: list[str], results: EvaluationResult, latencys: list[float]
+    ):
         test_results = results.test_results
         # Specific information
         test_name = self.test_name
@@ -139,7 +154,9 @@ class Evaluator:
         case_threshold = 0.5
         diff_threshold = 0.2
 
-        for i, (input_str, test_result) in enumerate(zip(inputs, test_results)):
+        for i, (input_str, test_result, latency) in enumerate(
+            zip(inputs, test_results, latencys)
+        ):
             pass_flag = "PASSED"
             if test_result.success:
                 test_cases_pass += 1
@@ -157,6 +174,7 @@ class Evaluator:
                     score=str(test_result.metrics_data[0].score),
                     reason=test_result.metrics_data[0].reason,
                     status=pass_flag,
+                    latency=str(latency),
                 )
             )
 

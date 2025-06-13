@@ -10,6 +10,7 @@ class TestcaseData:
     score: str
     reason: str
     status: str  # `PASSED` or `FAILURE`
+    latency: str
 
 
 @dataclass
