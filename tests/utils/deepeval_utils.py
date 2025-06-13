@@ -1,7 +1,7 @@
 from deepeval.key_handler import KEY_FILE_HANDLER, KeyValues
 from deepeval.models import LocalModel
 
-from tests.config import settings
+from src.config import settings
 
 def create_eval_model(
         model_name: str = settings.judge_model,

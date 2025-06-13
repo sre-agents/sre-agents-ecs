@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     embedding_model_api_key: str = ""
 
     opensearch_host: str = ""
-    opensearch_port: str = 9200
+    opensearch_port: str = "9200"
     opensearch_username: str = ""
     opensearch_password: str = ""
 
@@ -47,5 +47,8 @@ try:
 
     if settings.model_api_key == "":
         raise ValueError("MODEL_API_KEY is a null string.")
+
+    if settings.judge_model_api_key == "":
+        raise ValueError("JUDGE_MODEL_API_KEY is a null string.")
 except ValueError as e:
     print(e)
