@@ -6,6 +6,7 @@ litellm==1.71.1
 google-adk==1.0.0
 argparse
 deprecated
+typer
 
 #
 # Knowledgebase related requirements
@@ -29,9 +30,3 @@ loguru
 # Dev
 #
 pre-commit
-
-#
-# Deploy
-#
-volcengine-python-sdk==3.0.13
-typer
