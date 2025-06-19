@@ -29,14 +29,17 @@ def init_agents(
     return agents
 
 
-async def run_workflow(agents: list, prompt: str):
+async def run_workflow(agents: list, prompt: str) -> list[str]:
+    results = []
     input = prompt
     for agent in agents:
         res = await agent.run(input)
         input = res
+        results.append(f"Agent {agent.name} response: {res}")
+    return results
 
 
-async def run(prompt: str, enable_sampling: bool = False):
+async def run(prompt: str, enable_sampling: bool = False) -> list[str]:
     # Init memories
     short_term_memory_name = "test_short_term_memory" + get_timestamp()
     short_term_memory = await ShortTermMemory.create(name=short_term_memory_name)
@@ -51,13 +54,13 @@ async def run(prompt: str, enable_sampling: bool = False):
     sub_agents = init_agents(agent_configs, short_term_memory, enable_sampling)
 
     # Run SRE workflow
-    await run_workflow(sub_agents, prompt)
+    return await run_workflow(sub_agents, prompt)
 
 
 def main(
     prompt: str,
     enable_sampling: bool = False,
-):
+) -> list[str]:
     import asyncio
 
-    asyncio.run(run(prompt=prompt, enable_sampling=enable_sampling))
+    return asyncio.run(run(prompt=prompt, enable_sampling=enable_sampling))
