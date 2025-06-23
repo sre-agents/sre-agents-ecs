@@ -24,6 +24,7 @@ from src.prompts.long_term_memory_prompt import (
 )
 from src.sampling.sampler import Sampler
 from src.tools.call_agent import call_agent
+from src.tracing.tracer_factory import TracerFactory
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -58,6 +59,7 @@ class Agent:
         input_schema=None,
         output_schema=None,
         enable_sampling: bool = False,
+        enable_tracing: bool = False,
     ) -> None:
         logger.debug(f"Initializing {name} agent with {model} model.")
 
@@ -82,13 +84,29 @@ class Agent:
 
         if sub_agents != []:
             self._add_sub_agents(sub_agents)
-        self.agent = LlmAgent(
-            name=self.name,
-            description=self.description,
-            instruction=self.system_prompt,
-            model=self.model,
-            tools=self.tools,
-        )
+
+        if enable_tracing:
+            self.tracer = TracerFactory(type="APMPlus")
+            callbacks = self.tracer.get_callbacks(self.tracer)
+            self.agent = LlmAgent(
+                name=self.name,
+                description=self.description,
+                instruction=self.system_prompt,
+                model=self.model,
+                tools=self.tools,
+                # use callbacks to upload data to tracing system (e.g., Volcengine APMPlus)
+                after_model_callback=callbacks["after_model_callback"],
+                after_tool_callback=callbacks["after_tool_callback"],
+            )
+        else:
+            self.agent = LlmAgent(
+                name=self.name,
+                description=self.description,
+                instruction=self.system_prompt,
+                model=self.model,
+                tools=self.tools,
+            )
+
         self.user_prompt_template = user_prompt_template
         self.knowledgebase = knowledgebase
 

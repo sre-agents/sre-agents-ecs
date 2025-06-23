@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -17,6 +18,9 @@ class Settings(BaseSettings):
     prometheus_pushgateway_url: str = ""
     prometheus_pushgateway_username: str = ""
     prometheus_pushgateway_password: str = ""
+
+    apmplus_endpoint: str = "http://apmplus-cn-beijing.volces.com:4317"
+    apmplus_appkey: str = ""
 
     ecs_mcp_server: str = ""
 
