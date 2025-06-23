@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from deepeval.test_case import ToolCall
 
 from src.agent import Agent
+from src.memory.short_term_memory import ShortTermMemory
 
 
 def create_agent(
@@ -11,6 +12,7 @@ def create_agent(
     system_prompt: str,
     mcp_servers: list = [],
     tools: list = [],
+    short_term_memory: ShortTermMemory = None,
 ):
     agent = Agent(
         name=name,
@@ -18,6 +20,7 @@ def create_agent(
         system_prompt=system_prompt,
         mcp_servers=mcp_servers,
         tools=tools,
+        short_term_memory=short_term_memory
     )
     return agent
 

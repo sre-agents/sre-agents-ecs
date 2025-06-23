@@ -55,6 +55,7 @@ async def run(prompt: str, enable_sampling: bool = False):
 
     res = await orchestrator.run(prompt=prompt)
     print(f"====== Final response ======\n{res}")
+    return res
 
 
 def main(
@@ -63,4 +64,4 @@ def main(
 ):
     import asyncio
 
-    asyncio.run(run(prompt=prompt, enable_sampling=enable_sampling))
+    return asyncio.run(run(prompt=prompt, enable_sampling=enable_sampling))

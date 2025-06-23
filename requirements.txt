@@ -4,8 +4,9 @@
 python-dotenv==1.1.0
 litellm==1.71.1
 google-adk==1.0.0
-argparse
+# argparse
 deprecated
+typer
 
 #
 # Knowledgebase related requirements

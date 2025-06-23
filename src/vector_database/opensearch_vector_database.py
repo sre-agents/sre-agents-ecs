@@ -3,7 +3,6 @@ from typing import Any, Literal, Optional
 
 from opensearchpy import OpenSearch, Urllib3HttpConnection, helpers
 from pydantic import BaseModel
-
 from src.config import settings
 from src.utils.logger import get_logger
 from src.vector_database.vector_database_factory import BaseVectorDatabase, Embeddings
@@ -13,7 +12,7 @@ logger = get_logger(__name__)
 
 class OpenSearchConfig(BaseModel):
     host: str
-    port: int
+    port: str
     username: Optional[str]
     password: Optional[str]
     secure: bool = True  # ssl by default
@@ -22,7 +21,7 @@ class OpenSearchConfig(BaseModel):
 
     def to_opensearch_params(self) -> dict[str, Any]:
         params = {
-            "hosts": [{"host": self.host, "port": self.port}],
+            "hosts": [{"host": self.host, "port": int(self.port)}],
             "use_ssl": self.secure,
             "verify_certs": self.verify_certs,
             "connection_class": Urllib3HttpConnection,
