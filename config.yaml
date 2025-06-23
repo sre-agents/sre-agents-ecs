@@ -1,0 +1,52 @@
+model:
+  provider: openai
+  name: doubao-1-5-pro-256k-250115
+  api_base: doubao-1-5-pro-256k-250115
+  api_key: 
+
+embedding:
+  model_name: doubao-embedding-text-240715
+  dim: 2560
+  api_base: https://ark.cn-beijing.volces.com/api/v3/embeddings
+  api_key: 
+
+tracing:
+  # APMPlus
+  apmplus:
+    endpoint: http://apmplus-cn-beijing.volces.com:4317
+    app_key: 
+
+vector_db:
+  # Opensearch on Volcengine
+  opensearch:
+    # Host and port (without http:// or https://) 
+    host: 
+    port: 
+    username: 
+    password: 
+
+knowledgebase:
+  # Backend type for knowledgebase storage
+  # Options: local (in-memory), opensearch
+  backend: local
+
+  # Number of top results to retrieve from knowledgebase
+  search_topk: 2
+
+# Long-term Memory Configuration
+longterm_memory:
+  # Backend type for long-term memory storage
+  # Options: local (in-memory), opensearch
+  backend: local
+
+  # Storage mode for long-term memory
+  # - useronly: only store user input
+  # - global: store both user input and model response
+  mode: useronly
+
+  # Number of top results to retrieve from long-term memory
+  search_topk: 2
+
+mcp_server:
+  ecs_mcp_server: 
+

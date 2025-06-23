@@ -1,18 +1,17 @@
 from pydantic import BaseModel, Field
-
-from src.config import settings
-from src.knowledgebase.knowledgebase import KnowledgeBase
-from src.tools.ask_for_approve import ask_for_approve
-from src.utils.misc import read_file
+from sre_example.config import settings
 from sre_example.prompts.sre_agent_prompts import (
     CMD_EXECUTOR_SYSTEM_PROMPT,
-    CMD_GENERATOR_SYSTEM_PROMPT,
-    RISK_CHECKER_SYSTEM_PROMPT,
-    TASK_EVALUATOR_SYSTEM_PROMPT,
     CMD_EXECUTOR_USER_PROMPT_TEMPLATE,
+    CMD_GENERATOR_SYSTEM_PROMPT,
     CMD_GENERATOR_USER_PROMPT_TEMPLATE,
+    RISK_CHECKER_SYSTEM_PROMPT,
     RISK_CHECKER_USER_PROMPT_TEMPLATE,
+    TASK_EVALUATOR_SYSTEM_PROMPT,
 )
+from veadk.knowledgebase import KnowledgeBase
+from veadk.tools import ask_for_approve
+from veadk.utils.misc import read_file
 
 agent_configs = []
 
@@ -81,7 +80,7 @@ config = {
     "description": "Command executor",
     "system_prompt": CMD_EXECUTOR_SYSTEM_PROMPT,
     "user_prompt_template": CMD_EXECUTOR_USER_PROMPT_TEMPLATE,
-    "mcp_servers": [settings.ecs_mcp_server],
+    "mcp_servers": [settings.mcp_server.ecs_mcp_server],
     "tools": [ask_for_approve],
     # "long_term_memory": long_term_memory,
     "input_schema": CommandExecutorInputSchema,
