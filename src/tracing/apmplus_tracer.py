@@ -45,11 +45,17 @@ class APMPlusTracer(BaseTracer):
         tracer = trace.get_tracer(self.tracer_name)
         return tracer
 
-    def upload_data(self, agent_name: str, event: str, data: dict):
-        span_name = f"{agent_name}_{event}"
-        span = self.tracer.start_span(span_name)
-        span.add_event(event, data)
-        span.end()
-        logger.info(
-            f"Upload data to apmplus, span:{span_name}, event: {event}, data: {data}"
-        )
+    def upload_data(self):
+        try:
+            for data in self.data:
+                span_name = f"{data['agent_name']}_{data['event']}"
+                span = self.tracer.start_span(span_name)
+                span.add_event(data["event"], data)
+                span.end()
+                logger.info(
+                    f"Upload data to apmplus, span:{span_name}, event: {data['event']}, data: {data}"
+                )
+                self.data = []
+
+        except Exception as e:
+            logger.error("APMPlusTracer.upload_data error: " + str(e))

@@ -12,6 +12,7 @@ def create_agent(
     system_prompt: str,
     mcp_servers: list = [],
     tools: list = [],
+    enable_tracing=False,
     short_term_memory: ShortTermMemory = None,
 ):
     agent = Agent(
@@ -20,7 +21,8 @@ def create_agent(
         system_prompt=system_prompt,
         mcp_servers=mcp_servers,
         tools=tools,
-        short_term_memory=short_term_memory
+        enable_tracing=enable_tracing,
+        short_term_memory=short_term_memory,
     )
     return agent
 

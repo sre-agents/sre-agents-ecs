@@ -72,7 +72,7 @@ class Agent:
             api_base=api_base,
         )
         self.system_prompt = system_prompt
-
+        self.enable_tracing = enable_tracing
         self.tools = tools
         for mcp_server in mcp_servers:
             mcp_tool = MCPToolset(
@@ -85,8 +85,8 @@ class Agent:
         if sub_agents != []:
             self._add_sub_agents(sub_agents)
 
-        if enable_tracing:
-            self.tracer = TracerFactory(type="APMPlus")
+        if self.enable_tracing:
+            self.tracer = TracerFactory.create_tracer(type="APMPlus")
             callbacks = self.tracer.get_callbacks(self.tracer)
             self.agent = LlmAgent(
                 name=self.name,
@@ -254,6 +254,8 @@ class Agent:
                 input=prompt,
                 output=event.content.parts[0].text.strip(),
             )
+        if self.enable_tracing:
+            self.tracer.upload_data()
 
     async def run(self, prompt: str) -> str:
         logger.debug(f"Running {self.name} agent with prompt: {prompt}")
