@@ -2,6 +2,7 @@ import nest_asyncio
 from sre_example.config import settings
 from sre_example.prompts.sre_orchestrator_prompt import ORCHESTRATOR_SYSTEM_PROMPT
 from sre_example.sub_agent_configs import agent_configs
+from veadk.tracing import TracerFactory
 from veadk import Agent
 from veadk.memory import LongTermMemory, ShortTermMemory
 from veadk.utils.logger import filter_log
@@ -26,10 +27,15 @@ def init_agents(
             **config,
             api_key=settings.model.api_key,
             short_term_memory=short_term_memory,
-            enable_tracing=True,
-            tracer_type="APMPlus",
-            tracer_endpoint=settings.tracing.apmplus.endpoint,
-            tracer_app_key=settings.tracing.apmplus.app_key,
+            tracers=[
+                TracerFactory.create_tracer(
+                    type="APMPlus",
+                    config={
+                        "endpoint": settings.tracing.apmplus.endpoint,
+                        "app_key": settings.tracing.apmplus.app_key,
+                    },
+                )
+            ],
         )
         agents.append(agent)
     return agents

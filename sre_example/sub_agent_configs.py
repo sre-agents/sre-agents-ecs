@@ -54,7 +54,11 @@ config = {
     "description": "Check command risk level",
     "system_prompt": RISK_CHECKER_SYSTEM_PROMPT,
     "user_prompt_template": RISK_CHECKER_USER_PROMPT_TEMPLATE,
-    "knowledgebase": KnowledgeBase(data=risky_commands),
+    "knowledgebase": KnowledgeBase(
+        config={"collection_name": "risk_checker"},
+        data=risky_commands,
+        backend=settings.knowledgebase.backend,
+    ),
     "input_schema": CommandRiskCheckerInputSchema,
     "output_schema": CommandRiskCheckerOutputSchema,
 }

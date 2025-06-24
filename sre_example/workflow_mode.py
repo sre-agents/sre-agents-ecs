@@ -3,6 +3,7 @@ from sre_example.config import settings
 from sre_example.sub_agent_configs import agent_configs
 from veadk import Agent
 from veadk.memory import LongTermMemory, ShortTermMemory
+from veadk.tracing import TracerFactory
 from veadk.utils.logger import filter_log
 
 nest_asyncio.apply()
@@ -25,10 +26,15 @@ def init_agents(
             **config,
             api_key=settings.model.api_key,
             short_term_memory=short_term_memory,
-            enable_tracing=True,
-            tracer_type="APMPlus",
-            tracer_endpoint=settings.tracing.apmplus.endpoint,
-            tracer_app_key=settings.tracing.apmplus.app_key,
+            tracers=[
+                TracerFactory.create_tracer(
+                    type="APMPlus",
+                    config={
+                        "endpoint": settings.tracing.apmplus.endpoint,
+                        "app_key": settings.tracing.apmplus.app_key,
+                    },
+                )
+            ],
         )
         agents.append(agent)
     return agents
@@ -50,7 +56,10 @@ async def run(prompt: str, enable_sampling: bool = False) -> list[str]:
     short_term_memory = await ShortTermMemory.create(name=short_term_memory_name)
 
     long_term_memory_name = "test_long_term_memory" + get_timestamp()
-    long_term_memory = LongTermMemory(name=long_term_memory_name)
+    long_term_memory = LongTermMemory(
+        config={"collection_name": long_term_memory_name},
+        backend=settings.longterm_memory.backend,
+    )
     agent_configs[2]["long_term_memory"] = (
         long_term_memory  # enable long-term-memory in command executor
     )
