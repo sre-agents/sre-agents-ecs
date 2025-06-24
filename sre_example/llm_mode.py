@@ -33,6 +33,8 @@ def init_agents(
                     config={
                         "endpoint": settings.tracing.apmplus.endpoint,
                         "app_key": settings.tracing.apmplus.app_key,
+                        "service_name": "sre_agents_tracing",
+                        "tracer_name": "sre_agents_tracer",
                     },
                 )
             ],
@@ -47,7 +49,7 @@ async def run(prompt: str, enable_sampling: bool = False):
     short_term_memory = await ShortTermMemory.create(name=short_term_memory_name)
 
     long_term_memory_name = "test_long_term_memory" + get_timestamp()
-    long_term_memory = LongTermMemory(name=long_term_memory_name)
+    long_term_memory = LongTermMemory(config={"collection_name": long_term_memory_name})
     agent_configs[2]["long_term_memory"] = (
         long_term_memory  # enable long-term-memory in command executor
     )

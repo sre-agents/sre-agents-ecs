@@ -32,6 +32,8 @@ def init_agents(
                     config={
                         "endpoint": settings.tracing.apmplus.endpoint,
                         "app_key": settings.tracing.apmplus.app_key,
+                        "service_name": "sre_agents_tracing",
+                        "tracer_name": "sre_agents_tracer",
                     },
                 )
             ],
