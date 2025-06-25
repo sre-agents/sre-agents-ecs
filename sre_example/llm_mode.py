@@ -45,9 +45,6 @@ def init_agents(
 
 async def run(prompt: str, enable_sampling: bool = False):
     # Init memories
-    short_term_memory_name = "test_short_term_memory" + get_timestamp()
-    short_term_memory = await ShortTermMemory.create(name=short_term_memory_name)
-
     long_term_memory_name = "test_long_term_memory" + get_timestamp()
     long_term_memory = LongTermMemory(config={"collection_name": long_term_memory_name})
     agent_configs[2]["long_term_memory"] = (
@@ -55,7 +52,7 @@ async def run(prompt: str, enable_sampling: bool = False):
     )
 
     # Build sub agents
-    sub_agents = init_agents(agent_configs, short_term_memory)
+    sub_agents = init_agents(agent_configs)
 
     # Run SRE by LLM
     orchestrator = Agent(
@@ -64,7 +61,6 @@ async def run(prompt: str, enable_sampling: bool = False):
         api_key=settings.model.api_key,
         system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
         sub_agents=sub_agents,
-        short_term_memory=short_term_memory,
     )
 
     res = await orchestrator.run(prompt=prompt)

@@ -54,8 +54,6 @@ async def run_workflow(agents: list, prompt: str) -> list[str]:
 
 async def run(prompt: str, enable_sampling: bool = False) -> list[str]:
     # Init memories
-    short_term_memory_name = "test_short_term_memory" + get_timestamp()
-    short_term_memory = await ShortTermMemory.create(name=short_term_memory_name)
 
     long_term_memory_name = "test_long_term_memory" + get_timestamp()
     long_term_memory = LongTermMemory(
@@ -67,7 +65,7 @@ async def run(prompt: str, enable_sampling: bool = False) -> list[str]:
     )
 
     # Build sub agents
-    sub_agents = init_agents(agent_configs, short_term_memory)
+    sub_agents = init_agents(agent_configs)
 
     # Run SRE workflow
     return await run_workflow(sub_agents, prompt)
